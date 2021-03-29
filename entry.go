@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"loadtester/utils"
 	"net/http"
 	"strconv"
@@ -11,13 +10,12 @@ import (
 var keepGoing = true
 
 func performRequest(url string) {
-	//var client http.Client
 	resp, err := http.Get(url)
 	if err == nil {
-		fmt.Println(resp.StatusCode)
+		utils.WriteLog(resp.StatusCode, " ", url)
 		resp.Body.Close()
 	} else {
-		fmt.Println(err)
+		utils.WriteLog(err)
 	}
 }
 
@@ -48,6 +46,7 @@ func getCommand() {
 }
 
 func main() {
+	utils.WriteLog("Start.")
 
 	var settings = utils.GetSettings()
 
@@ -56,12 +55,9 @@ func main() {
 	}
 
 	for i := 0; i < settings.Seconds; i++ {
-		fmt.Println(">>>>>>>>>>>", i)
 		time.Sleep(1000 * time.Millisecond)
-
-		getCommand()
-
+		//getCommand()
 	}
 
-	fmt.Println("Finished.")
+	utils.WriteLog("Finished.")
 }

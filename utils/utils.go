@@ -7,24 +7,22 @@ import (
 	"os"
 )
 
+var Helper = GetHelper()
+
 const SIG_STOP = 1
 
 type Settings struct {
-	Url   				string 	`json:"url"`
-	RequPerRoutine   	int 	`json:"requests"`
-	NumberOfRoutines  	int    	`json:"routines"`
-	Seconds				int		`json:"seconds"`
+	Url              string `json:"url"`
+	RequPerRoutine   int    `json:"requests"`
+	NumberOfRoutines int    `json:"routines"`
+	Seconds          int    `json:"seconds"`
 }
 
-
-
-
-
-func GetSettings() (Settings) {
+func GetSettings() Settings {
 	jsonFile, err := os.Open("settings.json")
 	Check(err)
 
-	fmt.Println("Successfully Opened settings.json")
+	WriteLog("Successfully Opened settings.json")
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
@@ -33,16 +31,18 @@ func GetSettings() (Settings) {
 	var settings Settings
 	json.Unmarshal(byteValue, &settings)
 
-	fmt.Println(settings)
+	WriteLog(settings)
 	return settings
-}
-
-func LogResult(status int){
-	fmt.Printf("%d;\n" ,status)
 }
 
 func Check(e error) {
 	if e != nil {
+		WriteLog(e)
 		panic(e)
 	}
+}
+
+func WriteLog(v ... interface{}){
+	Helper.Logger.Print(v ...)
+	fmt.Println(v ...)
 }
