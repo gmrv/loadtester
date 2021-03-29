@@ -7,12 +7,18 @@ import (
 	"os"
 )
 
+const SIG_STOP = 1
+
 type Settings struct {
 	Url   				string 	`json:"url"`
 	RequPerRoutine   	int 	`json:"requests"`
 	NumberOfRoutines  	int    	`json:"routines"`
 	Seconds				int		`json:"seconds"`
 }
+
+
+
+
 
 func GetSettings() (Settings) {
 	jsonFile, err := os.Open("settings.json")
