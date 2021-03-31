@@ -9,8 +9,6 @@ import (
 
 var Helper = GetHelper()
 
-const SIG_STOP = 1
-
 type Settings struct {
 	Url              string `json:"url"`
 	RequPerRoutine   int    `json:"requests"`
