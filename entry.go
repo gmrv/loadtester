@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"loadtester/utils"
 	"net/http"
 	"strconv"
@@ -40,48 +39,52 @@ func performMultiRequest(url string, count int) {
 	}
 }
 
-func getCommand() (command int, params []string, err error) {
-	//if command == utils.LD_COMMAND_STOP {
-	//	keepGoing = false
-	//}
+func getCommand() (command utils.Command, err error) {
 	counter += 1
-	if counter >= settings.Seconds{
-		return utils.LD_COMMAND_STOP, nil, nil
-	}
-	if counter != 1 {
-		return utils.LD_COMMAND_KEEP, nil, nil
+
+	// Считаем количество секунд и посылаем команду на завершение если время истекло
+	if counter >= settings.Seconds {
+		return utils.Command{2, utils.LT_COMMAND_STOP, nil}, err
 	}
 
-	return utils.LD_COMMAND_DDOS, nil, nil
+	return utils.Command{1, utils.LT_COMMAND_DDOS, nil}, nil
 }
 
 func main() {
+	var last_command_id = -1
+
 	utils.WriteLog("Start.")
 
-	for  {
+	for {
 
-		command, params, err := getCommand()
+		command, err := getCommand()
 		utils.Check(err)
 
-		switch command {
+		// Не выполнять уже выполненную команду
+		if last_command_id != command.Id {
 
-		case utils.LD_COMMAND_DDOS:
-			for i := 0; i < settings.NumberOfRoutines; i++ {
-				go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine)
+			last_command_id = command.Id
+
+			if !utils.IsCorrectCommand(command){
+				continue
 			}
-			fmt.Println(params)
 
-		case utils.LD_COMMAND_STOP:
-			keepGoing = false
+			switch command.Command {
+			case utils.LT_COMMAND_DDOS:
+				for i := 0; i < settings.NumberOfRoutines; i++ {
+					go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine)
+				}
 
-		case utils.LD_COMMAND_KEEP:
-			keepGoing = true
+			case utils.LT_COMMAND_STOP:
+				keepGoing = false
 
-		default:
-			keepGoing = true
+			default:
+				keepGoing = true
+			}
+
 		}
 
-		if !keepGoing{
+		if !keepGoing {
 			break
 		}
 
