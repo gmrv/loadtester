@@ -10,10 +10,24 @@ import (
 var Helper = GetHelper()
 
 type Settings struct {
-	Url              string `json:"url"`
-	RequPerRoutine   int    `json:"requests"`
-	NumberOfRoutines int    `json:"routines"`
-	Seconds          int    `json:"seconds"`
+	Url              string        `json:"url"`
+	RequPerRoutine   int           `json:"requests"`
+	NumberOfRoutines int           `json:"routines"`
+	Seconds          int           `json:"seconds"`
+	Commands         []CommandType `json:"commands"`
+}
+
+type ParamType struct {
+	Param       string `json:"param"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
+type CommandType struct {
+	Id          int         `json:"id"`
+	Command     string      `json:"command"`
+	Description string      `json:"description"`
+	Params      []ParamType `json:"params"`
 }
 
 func GetSettings() Settings {
@@ -40,7 +54,7 @@ func Check(e error) {
 	}
 }
 
-func WriteLog(v ... interface{}){
-	Helper.Logger.Print(v ...)
-	fmt.Println(v ...)
+func WriteLog(v ...interface{}) {
+	Helper.Logger.Print(v...)
+	fmt.Println(v...)
 }

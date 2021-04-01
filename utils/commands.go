@@ -10,7 +10,21 @@ type Command struct {
 	Params  []string
 }
 
-func IsCorrectCommand(cmd Command) (isCorrect bool) {
+type LTCommandError struct {}
 
-	return true
+var commandsDict []string
+var commandsMap = make(map[string]int)
+
+func IsCorrectCommand(cmd Command) (isCorrect bool) {
+	var settings = GetSettings()
+	var commands = settings.Commands
+
+	for _, c := range commands {
+		commandsDict = append(commandsDict, c.Command)
+		commandsMap[c.Command] = len(c.Params)
+	}
+
+	return false
 }
+
+func (e LTCommandError) Error() string{return "123"}

