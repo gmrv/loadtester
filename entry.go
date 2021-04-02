@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"loadtester/utils"
 	"net/http"
 	"strconv"
@@ -10,32 +11,44 @@ import (
 var keepGoing = true
 var counter = 0
 var settings = utils.GetSettings()
+var requests = 0
 
-func performRequest(url string) {
+func performRequest(url string) (status int) {
+	status = 0
 	resp, err := http.Get(url)
 	if err == nil {
-		utils.WriteLog(resp.StatusCode, " ", url)
+		status = resp.StatusCode
+		utils.WriteLog(status, " ", url)
 		resp.Body.Close()
 	} else {
+		status = -1
 		utils.WriteLog(err)
 	}
+	return status
 }
 
-func performMultiRequest(url string, count int) {
+func performMultiRequest(url string, count int, c chan int) {
 	if count == 0 {
 		for {
 			if !keepGoing {
 				break
 			}
-			performRequest(url)
+			c <- performRequest(url)
 		}
 	} else {
 		for i := 0; i < count; i++ {
 			if !keepGoing {
 				break
 			}
-			performRequest(url)
+			c <- performRequest(url)
 		}
+	}
+}
+
+func listenChanel(c chan int)  {
+	for {
+		<-c
+		requests += 1
 	}
 }
 
@@ -71,11 +84,9 @@ func main() {
 
 	utils.WriteLog("Start.")
 
-	var h = utils.Helper
-	utils.WriteLog(h)
+	c := make(chan int, 100)
 
-	utils.PutCommand()
-	utils.GetCommand()
+	go listenChanel(c)
 
 	for {
 
@@ -90,7 +101,7 @@ func main() {
 			switch command.Name {
 			case utils.LT_COMMAND_DDOS:
 				for i := 0; i < settings.NumberOfRoutines; i++ {
-					go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine)
+					go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine, c)
 				}
 
 			case utils.LT_COMMAND_STOP:
@@ -103,6 +114,8 @@ func main() {
 		}
 
 		if !keepGoing {
+			utils.WriteLog("wait...")
+			time.Sleep(5000 * time.Millisecond)
 			break
 		}
 
@@ -110,5 +123,6 @@ func main() {
 
 	}
 
+	defer fmt.Println(">>>", requests)
 	utils.WriteLog("Finished.")
 }
