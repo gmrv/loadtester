@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"log"
 )
 
-var Helper = GetHelper()
+var logger = GetLogger()
 
 func Check(e error) {
 	if e != nil {
@@ -14,6 +15,15 @@ func Check(e error) {
 }
 
 func WriteLog(v ...interface{}) {
-	Helper.Logger.Print(v...)
+	logger.Print(v...)
 	fmt.Println(v...)
 }
+
+func GetSettings() SettingsType {
+	return GetHelper().settings
+}
+
+func GetLogger() log.Logger {
+	return GetHelper().logger
+}
+

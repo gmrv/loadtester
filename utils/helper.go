@@ -18,9 +18,9 @@ var once sync.Once
 var singleInstance *helper
 
 type helper struct {
-	Logger log.Logger
-	Settings SettingsType
-	CommandsStack []CommandType
+	logger log.Logger
+	settings SettingsType
+	commandsStack []CommandType
 }
 
 type SettingsType struct {
@@ -36,8 +36,8 @@ func GetHelper() *helper {
 		once.Do(
 			func() {
 				singleInstance = &helper{
-					Logger: getLogger(),
-					Settings: GetSettings(),
+					logger: getLogger(),
+					settings: getSettings(),
 				}
 			})
 	}
@@ -54,7 +54,7 @@ func getLogger() (log log.Logger) {
 	return log
 }
 
-func GetSettings() SettingsType {
+func getSettings() SettingsType {
 	jsonFile, err := os.Open("settings.json")
 	if err != nil {
 		panic(err)
