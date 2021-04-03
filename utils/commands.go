@@ -4,7 +4,7 @@ import "fmt"
 
 const LT_COMMAND_STOP = "stop"
 const LT_COMMAND_DDOS = "ddos"
-const LT_COMMAND_KEEP = "keep"
+const LT_COMMAND_KILL = "kill"
 
 var commandsDict []string
 var commandsMap = make(map[string]int)
@@ -28,7 +28,7 @@ type CommandType struct {
 	Params []interface{}
 }
 
-type LTCommandError struct{
+type LTCommandError struct {
 	command CommandType
 }
 
@@ -51,15 +51,13 @@ func IsCorrectCommand(cmd CommandType) (isCorrect bool, err error) {
 	return false, LTCommandError{cmd}
 }
 
-func PutCommand(){
-	h := GetHelper()
-	h.CommandStack = append(h.CommandStack,	CommandType{100, "ddos", nil})
-	print(h.CommandStack)
-}
-
-func GetCommand(){
-	h := GetHelper()
-	h.CommandStack = append(h.CommandStack[:1], h.CommandStack[2:]...)
-}
-
-
+//func PutCommand(){
+//	h := GetHelper()
+//	h.CommandStack = append(h.CommandStack,	CommandType{100, "ddos", nil})
+//	print(h.CommandStack)
+//}
+//
+//func GetCommand(){
+//	h := GetHelper()
+//	h.CommandStack = append(h.CommandStack[:1], h.CommandStack[2:]...)
+//}

