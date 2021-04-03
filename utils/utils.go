@@ -26,4 +26,3 @@ func GetSettings() SettingsType {
 func GetLogger() log.Logger {
 	return GetHelper().logger
 }
-

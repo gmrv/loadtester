@@ -25,7 +25,7 @@ type CommandDescriptorType struct {
 type CommandType struct {
 	Id     int
 	Name   string
-	Params []string
+	Params []interface{}
 }
 
 type LTCommandError struct{
@@ -37,7 +37,7 @@ func (e LTCommandError) Error() string {
 }
 
 func IsCorrectCommand(cmd CommandType) (isCorrect bool, err error) {
-	var commands = Helper.Settings.Commands
+	var commands = GetSettings().Commands
 
 	for _, c := range commands {
 		commandsDict = append(commandsDict, c.Name)
@@ -52,13 +52,14 @@ func IsCorrectCommand(cmd CommandType) (isCorrect bool, err error) {
 }
 
 func PutCommand(){
-	Helper.CommandsStack = append(Helper.CommandsStack, CommandType{100, "ddos", nil})
-	Helper.CommandsStack = append(Helper.CommandsStack, CommandType{101, "ddos", nil})
-	Helper.CommandsStack = append(Helper.CommandsStack, CommandType{102, "ddos", nil})
+	h := GetHelper()
+	h.CommandStack = append(h.CommandStack,	CommandType{100, "ddos", nil})
+	print(h.CommandStack)
 }
 
 func GetCommand(){
-	Helper.CommandsStack = append(Helper.CommandsStack[:1], Helper.CommandsStack[2:]...)
+	h := GetHelper()
+	h.CommandStack = append(h.CommandStack[:1], h.CommandStack[2:]...)
 }
 
 
