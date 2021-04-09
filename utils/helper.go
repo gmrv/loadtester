@@ -1,7 +1,7 @@
 // Тут будут объекты инстанс которых должен быть в единственном числе
 // Логер
 // Настройки
-// Стек команд 
+// Стек команд
 
 package utils
 
@@ -18,9 +18,12 @@ var once sync.Once
 var singleInstance *helper
 
 type helper struct {
-	logger log.Logger
-	settings SettingsType
-	CommandStack []CommandType
+	logger        log.Logger
+	settings      SettingsType
+	CommandStack  []CommandType
+	FL_KEEP_GOING bool
+	FL_QUIT       bool
+	C             chan int
 }
 
 type SettingsType struct {
@@ -38,6 +41,9 @@ func GetHelper() *helper {
 				singleInstance = &helper{
 					logger:        getLogger(),
 					settings:      getSettings(),
+					FL_KEEP_GOING: true,
+					FL_QUIT:       false,
+					C:             make(chan int, 100),
 				}
 			})
 	}
@@ -71,4 +77,3 @@ func getSettings() SettingsType {
 
 	return settings
 }
-

